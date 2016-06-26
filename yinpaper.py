@@ -4,11 +4,18 @@ import numpy as np
 import random as r
 import scipy.linalg as sc
 import sdeint
-import pysde
 import math as m
-"""
-This code is suppose to approximate dx(t) = x(t)[b(\alpha(t))-a(\alpha(t))]dt + x(t)\sigma(\alpha(t)) \circ dW(t) in Dr. Yin's paper (example 5.1). I am using the sdeint package that gives a variety of methods to integrate SDEs. 
-"""
+#import pysde
+
+#
+# This code is suppose to approximate
+# ...math:
+#
+#   dx(t) = x(t)[b(\alpha(t))-a(\alpha(t))]dt + x(t)\sigma(\alpha(t)) \circ dW(t)
+#
+# in Dr. Yin's paper (example 5.1). I am using the sdeint package that gives a
+# variety of methods to integrate SDEs.
+#
 
 
 np.set_printoptions(threshold='nan')
@@ -58,7 +65,7 @@ def S(x):
         w = np.append(x,l)
     return w
 
-#this simulates the right part of equation 
+#this simulates the right part of equation
 def g(x,t):
      z = x*sigma(alpha[int(m.ceil(t))])
      #b = np.asscalar(z)
@@ -70,9 +77,9 @@ def f(x, t):
     for t in range(50):
         w = b(alpha[int(m.ceil(t))])-a(alpha[int(m.ceil(t))])
         l = np.append(l,w)
-    return x*(l[t]*x) #S(x)*(b(x)-a(x)*S(x)) 
+    return x*(l[t]*x) #S(x)*(b(x)-a(x)*S(x))
 
-    
+
 result = sdeint.stratHeun(f, g, x0, tspan)
 
 plt.plot(tspan, result)
