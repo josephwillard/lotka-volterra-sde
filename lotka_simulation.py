@@ -7,8 +7,7 @@ import sdeint
 np.random.seed(23532532)
 
 #
-# This code is suppose to approximate
-# .. math::
+# This code is suppose to approximate,
 #
 #   dx(t) = x(t)[b(\alpha(t))-a(\alpha(t))]dt + x(t)\sigma(\alpha(t)) \circ dW(t)
 #
@@ -47,66 +46,63 @@ sigma = np.array([0.2, 0.0])
 a = np.array([4.0, 1.0])
 b = np.array([3.0, 2.0])
 
+#
+#This simulates the 1st diffusion.
+#
+def c(x, t):    
+    return x * (3.0 - 4.0 * x)
 
-def B(z, t):
-    """ Brownian motion\wiener process.
+def d(x, t):
+    return x * 0.2
 
-    Parameters
-    ==========
-    z: float
-        This is the blah value.
-    t: float
-        The time value.
+    
 
-    Returns
-    =======
-    The blah value
-    """
-    if t == 0:
-        return 0
-    else:
-        return (1/(2*np.pi*t))*(np.exp(-(z**2/2*t)))
-
-
-def S(x):
-    """ Solution that Dr. Yin gave me.
-    """
-
-    # FIXME: what is eps?
-    x = np.array([3])
-    for n in range(50):
-        l = x[n] + eps[n]*x[n]*(b(alpha[n]) -
-                                a(alpha[n])*x[n]) +\
-            np.sqrt(eps[n]) * sigma(alpha[n]) *\
-            (B(eps[n+1], n+1) - B(eps[n], n))
-        w = np.append(x, l)
-    return w
-
-
+#
+#This simulates switching.
+#
 def g(x, t):
-    """ This simulates the right part of equation (5.1).
-    """
-    z = x * sigma[alpha[time_to_index[t]]]
-    return z
+    #This simulates the right part of equation (5.1).
+    return  x * sigma[alpha[time_to_index[t]]]
 
 
 def f(x, t):
-    """ Simulates left part of equation (5.1).
-    """
-    return x * (b[alpha[time_to_index[t]]] -
-                x * a[alpha[time_to_index[t]]])
+    #Simulates left part of equation (5.1).
+    return x * (b[alpha[time_to_index[t]]] - x * a[alpha[time_to_index[t]]])
+
+#
+#This simulates the 2nd diffusion.
+#
+
+def e(x, t):
+    #This simulates the left part of equation (5.1).
+    return  x * (2 - x)
+
+def h(x, t):
+    #Simulates right part of equation (5.1).
+    return 0
 
 
-result = sdeint.stratHeun(f, g, x0, tspan)
+result1 = sdeint.stratHeun(f, g, x0, tspan) #Switching
+result2 = sdeint.stratHeun(c, d, x0, tspan) #1st diffusion
+result3 = sdeint.stratHeun(e, h, x0, tspan) #2nd diffusion
+
+log = np.log(result1)/np.log(tspan)
 
 
-import matplotlib.pylab as plt
-plt.style.use('ggplot')
+plt.subplot(221)
+plt.plot(tspan, result1)
+plt.title('With Switching')
 
-fig = plt.figure()
-ax = plt.subplot()
-ax.clear()
-ax.plot(tspan, result)
-ax.legend()
-fig.tight_layout()
+plt.subplot(222)
+plt.plot(tspan, log)
+plt.title('log(x(t))/log(t)')
+
+plt.subplot(223)
+plt.title('1st Diffusion')
+plt.plot(tspan,result2)
+
+plt.subplot(224)
+plt.title('2nd Diffusion')
+plt.plot(tspan,result3)
+plt.show()
 
